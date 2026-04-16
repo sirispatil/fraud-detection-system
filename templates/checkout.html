@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Secure Checkout</title>
+  <style>
+    /* Page background */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    /* White form box in center */
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 420px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Top heading */
+    .box h2 {
+      margin: 0 0 6px;
+      color: #222;
+      font-size: 20px;
+    }
+
+    .box p {
+      margin: 0 0 20px;
+      color: #888;
+      font-size: 13px;
+    }
+
+    /* Section divider */
+    .section-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 20px 0 10px;
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 6px;
+    }
+
+    /* Form labels */
+    label {
+      display: block;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+
+    /* Form inputs and selects */
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 7px;
+      font-size: 14px;
+      box-sizing: border-box;
+      background: #fafafa;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #4CAF50;
+      background: white;
+    }
+
+    /* Two fields side by side (for amount + quantity) */
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Pay Now button */
+    button {
+      margin-top: 24px;
+      width: 100%;
+      padding: 13px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover   { background: #43a047; }
+    button:active  { background: #388e3c; }
+
+    /* Loading state */
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    /* Result box shown after payment */
+    #result {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 10px;
+      display: none;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* Colour based on decision */
+    .APPROVE { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .STEP_UP { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
+    .FLAG    { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+    .BLOCK   { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+
+    .decision-label {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    /* Link to admin dashboard */
+    .dashboard-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 12px;
+      color: #888;
+      text-decoration: none;
+    }
+
+    .dashboard-link:hover { color: #333; }
+  </style>
+</head>
+<body>
+<div class="box">
+
+  <h2>Secure Checkout</h2>
+  <p>Fraud Detection System — E-Commerce Demo</p>
+
+  <form id="checkoutForm">
+
+    <!-- SECTION 1: Customer Details -->
+    <div class="section-title">Your Details</div>
+
+    <label>Full Name</label>
+    <input type="text" name="full_name" placeholder="e.g. Siri Patil" required>
+
+    <label>Phone Number</label>
+    <input type="text" name="phone" placeholder="e.g. 9876543210" required>
+
+    <label>Your City</label>
+    <input type="text" name="city" placeholder="e.g. Bangalore" required>
+
+    <!-- SECTION 2: Order Details -->
+    <div class="section-title">Order Details</div>
+
+    <div class="row2">
+      <div>
+        <label>Amount (INR)</label>
+        <input type="number" name="amount" placeholder="e.g. 4999" required>
+      </div>
+      <div>
+        <label>Quantity</label>
+        <input type="number" name="quantity" value="1" min="1">
+      </div>
+    </div>
+
+    <label>Product Category</label>
+    <select name="product_category">
+      <option value="electronics">Electronics</option>
+      <option value="clothing">Clothing</option>
+      <option value="jewelry">Jewelry</option>
+      <option value="grocery">Grocery</option>
+      <option value="books">Books</option>
+      <option value="home_appliance">Home Appliance</option>
+    </select>
+
+    <!-- SECTION 3: Payment -->
+    <div class="section-title">Payment</div>
+
+    <label>Payment Method</label>
+    <select name="payment_method">
+      <option value="UPI">UPI</option>
+      <option value="card">Credit / Debit Card</option>
+      <option value="wallet">Wallet</option>
+      <option value="netbanking">Net Banking</option>
+    </select>
+
+    <label>Shipping City</label>
+    <input type="text" name="shipping_city"
+           placeholder="City to deliver to (try a different city!)">
+
+    <!-- Submit button -->
+    <button type="submit" id="payBtn">Pay Now</button>
+
+  </form>
+
+  <!-- Result shown after form submit -->
+  <div id="result"></div>
+
+  <!-- Link to admin dashboard -->
+  <a class="dashboard-link" href="/dashboard">
+    View Admin Dashboard →
+  </a>
+
+</div>
+
+<script>
+  document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+    e.preventDefault();  // Stop page from refreshing on submit
+
+    // Disable button and show loading text while waiting
+    const btn = document.getElementById('payBtn');
+    btn.disabled    = true;
+    btn.textContent = 'Processing...';
+
+    // Collect all form values
+    const formData = new FormData(this);
+
+    try {
+      // Send POST request to Flask /checkout route
+      const response = await fetch('/checkout', {
+        method: 'POST',
+        body:   formData
+      });
+
+      // Read JSON response from Flask
+      const data = await response.json();
+
+      // Show result box
+      const box = document.getElementById('result');
+      box.style.display = 'block';
+      box.className     = data.decision;
+
+      // Decision icons
+      const icons = {
+        APPROVE: '✓',
+        STEP_UP: '!',
+        FLAG:    '⚑',
+        BLOCK:   '✕'
+      };
+
+      // Fill result box with details
+      box.innerHTML = `
+        <div class="decision-label">
+          ${icons[data.decision] || ''} ${data.decision}
+        </div>
+        <div>Hello ${data.user_name} — ${data.message}</div>
+        <div style="margin-top:8px;font-size:12px;opacity:0.8">
+          Risk Score: <strong>${data.risk_score} / 100</strong> &nbsp;|&nbsp;
+          Level: <strong>${data.escalation_level}</strong>
+        </div>
+      `;
+
+    } catch (err) {
+      // If something went wrong show error
+      alert('Something went wrong. Check terminal for error.');
+    }
+
+    // Re-enable button
+    btn.disabled    = false;
+    btn.textContent = 'Pay Now';
+  });
+</script>
+</body>
+</html>

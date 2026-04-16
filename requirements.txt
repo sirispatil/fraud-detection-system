@@ -1,0 +1,9 @@
+# requirements.txt
+# All Python packages needed to run this project.
+# Install all at once with: pip install -r requirements.txt
+
+flask==3.0.3              # Web framework — runs our server
+mysql-connector-python==8.4.0  # Connects Python to MySQL
+scikit-learn==1.5.0       # Machine learning library — trains and runs our model
+pandas==2.2.2             # Data manipulation — used in train_model.py
+numpy==1.26.4             # Numerical operations — used by scikit-learn

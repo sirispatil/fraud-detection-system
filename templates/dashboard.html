@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <style>
+    body { font-family:Arial; background:#f4f4f4; margin:0; padding:20px; }
+    .stats { display:flex; gap:16px; margin-bottom:30px; flex-wrap:wrap; }
+    .card { background:white; padding:20px 28px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.08); min-width:140px; }
+    .card p { margin:0; font-size:13px; color:#888; }
+    .card h3 { margin:6px 0 0; font-size:28px; color:#333; }
+    table { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; margin-bottom:30px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+    th { background:#333; color:white; padding:10px 14px; text-align:left; font-size:13px; }
+    td { padding:10px 14px; font-size:13px; border-bottom:1px solid #f0f0f0; color:#444; }
+    .APPROVE { color:#2e7d32; font-weight:bold; }
+    .STEP_UP { color:#f57f17; font-weight:bold; }
+    .FLAG    { color:#e65100; font-weight:bold; }
+    .BLOCK   { color:#c62828; font-weight:bold; }
+    .LOW    { color:#2e7d32; }
+    .MEDIUM { color:#f57f17; }
+    .HIGH   { color:#e65100; }
+    a { display:inline-block; margin-bottom:20px; padding:8px 16px; background:#4CAF50; color:white; border-radius:6px; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <h2>Fraud Detection — Admin Dashboard</h2>
+  <a href="/checkout">Go to Checkout</a>
+
+  <div class="stats">
+    <div class="card"><p>Total Sessions</p><h3>{{ total_sessions }}</h3></div>
+    <div class="card"><p>Total Transactions</p><h3>{{ total_transactions }}</h3></div>
+    <div class="card" style="border-top:4px solid #c62828"><p>Blocked</p><h3 style="color:#c62828">{{ total_blocked }}</h3></div>
+    <div class="card" style="border-top:4px solid #e65100"><p>Flagged</p><h3 style="color:#e65100">{{ total_flagged }}</h3></div>
+  </div>
+
+  <h3>Recent Fraud Decisions</h3>
+  <table>
+    <tr><th>Customer</th><th>Amount</th><th>Payment</th><th>Category</th><th>Risk Score</th><th>Decision</th></tr>
+    {% for d in recent_decisions %}
+    <tr>
+      <td>{{ d.full_name }}</td>
+      <td>₹{{ d.amount }}</td>
+      <td>{{ d.payment_method }}</td>
+      <td>{{ d.product_category }}</td>
+      <td>{{ d.final_score }}</td>
+      <td class="{{ d.decision }}">{{ d.decision }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h3>Recent Sessions</h3>
+  <table>
+    <tr><th>Customer</th><th>IP Address</th><th>Device</th><th>City</th><th>Risk Score</th><th>Level</th></tr>
+    {% for s in recent_sessions %}
+    <tr>
+      <td>{{ s.full_name }}</td>
+      <td>{{ s.ip_address }}</td>
+      <td>{{ s.device_type }}</td>
+      <td>{{ s.city_detected }}</td>
+      <td>{{ s.risk_score }}</td>
+      <td class="{{ s.escalation_level }}">{{ s.escalation_level }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h3>Recent Risk Signals</h3>
+  <table>
+    <tr><th>Customer</th><th>Source</th><th>Signal</th><th>Score</th><th>Details</th></tr>
+    {% for r in recent_signals %}
+    <tr>
+      <td>{{ r.full_name }}</td>
+      <td>{{ r.signal_source }}</td>
+      <td>{{ r.signal_name }}</td>
+      <td>{{ r.score_contribution }}</td>
+      <td>{{ r.details }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>
